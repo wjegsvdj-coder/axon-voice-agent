@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Exon</string>
+    <string name="accessibility_description">Exon uses accessibility to perform system actions you ask for by voice: home, back, scrolling, screenshots and quick settings.</string>
+</resources>
