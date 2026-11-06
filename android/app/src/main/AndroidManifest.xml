@@ -24,7 +24,7 @@
         android:allowBackup="true"
         android:label="Exon"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Material3.DayNight.NoActionBar">
+        android:theme="@style/ExonTheme">
 
         <activity
             android:name=".MainActivity"
