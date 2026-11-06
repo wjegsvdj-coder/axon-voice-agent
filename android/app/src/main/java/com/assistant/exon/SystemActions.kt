@@ -50,16 +50,23 @@ class SystemActions(private val ctx: Context) {
         return "Battery $pct%" + if (charging) ", charging." else "."
     }
 
-    fun flashlight(on: Boolean): String = try {
-        val cm = ctx.getSystemService(CameraManager::class.java)
-        val id = cm.cameraIdList.firstOrNull { cam ->
-            cm.getCameraCharacteristics(cam).get(android.hardware.camera2.CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
-        } ?: return "Is phone mein flashlight nahi mila."
-        cm.setTorchMode(id, on)
-        torchOn = on
-        if (on) "Flashlight on." else "Flashlight off."
-    } catch (e: CameraAccessException) {
-        "Flashlight error: ${e.message}"
+    fun flashlight(on: Boolean): String {
+        return try {
+            val cm = ctx.getSystemService(CameraManager::class.java)
+            val id = cm.cameraIdList.firstOrNull { cam ->
+                cm.getCameraCharacteristics(cam)
+                    .get(android.hardware.camera2.CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+            }
+            if (id == null) {
+                "Is phone mein flashlight nahi mila."
+            } else {
+                cm.setTorchMode(id, on)
+                torchOn = on
+                if (on) "Flashlight on." else "Flashlight off."
+            }
+        } catch (e: CameraAccessException) {
+            "Flashlight error: ${e.message}"
+        }
     }
 
     fun openApp(name: String): String {
