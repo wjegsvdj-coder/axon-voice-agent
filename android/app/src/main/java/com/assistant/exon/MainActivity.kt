@@ -207,9 +207,30 @@ class MainActivity : AppCompatActivity() {
 
     private fun toggleService() {
         val intent = Intent(this, ExonService::class.java)
-        if (isServiceRunning()) { stopService(intent); Toast.makeText(this, "Listener band", Toast.LENGTH_SHORT).show() }
-        else { ContextCompat.startForegroundService(this, intent); Toast.makeText(this, "Listener chalu - 'Exon' bolo", Toast.LENGTH_SHORT).show() }
+        if (isServiceRunning()) {
+            getSharedPreferences("exon_prefs", MODE_PRIVATE).edit().putBoolean("always_listen", false).apply()
+            stopService(intent)
+            Toast.makeText(this, "Listener band", Toast.LENGTH_SHORT).show()
+        } else {
+            getSharedPreferences("exon_prefs", MODE_PRIVATE).edit().putBoolean("always_listen", true).apply()
+            askBatteryExemption()
+            ContextCompat.startForegroundService(this, intent)
+            Toast.makeText(this, "Always listening ON - 'Exon' bolo", Toast.LENGTH_SHORT).show()
+        }
         status.postDelayed({ refreshDiag() }, 500)
+    }
+
+    /** Android kills background mic services unless the app is exempt from battery optimisation. */
+    private fun askBatteryExemption() {
+        val pm = getSystemService(POWER_SERVICE) as android.os.PowerManager
+        if (pm.isIgnoringBatteryOptimizations(packageName)) return
+        try {
+            val i = Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                android.net.Uri.parse("package:$packageName"))
+            startActivity(i)
+        } catch (e: Exception) {
+            try { startActivity(Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)) } catch (_: Exception) {}
+        }
     }
 
     private fun isServiceRunning(): Boolean {
