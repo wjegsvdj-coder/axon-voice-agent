@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="EXON"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp"
+            android:text="Checking permissions..."
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btnMic"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:text="Bolo (tap to talk)" />
+
+        <TextView
+            android:id="@+id/heard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="12dp"
+            android:text=""
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/reply"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:paddingBottom="20dp"
+            android:text=""
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnAccessibility"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enable accessibility service" />
+
+        <Button
+            android:id="@+id/btnWriteSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Allow system writes (timeout, refresh rate)" />
+
+        <Button
+            android:id="@+id/btnDnd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Allow DND control" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="24dp"
+            android:text="Deep settings (run once on a PC with USB debugging):"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/adbHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:text="adb shell pm grant com.assistant.exon android.permission.WRITE_SECURE_SETTINGS"
+            android:textIsSelectable="true"
+            android:typeface="monospace" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="24dp"
+            android:text="Try: “instagram kholo”, “screen timeout 5 minutes”, “refresh rate 120”, “scroll down”, “go home”, “screenshot”, “battery”, “flashlight on”, “DND on”, “volume up”, “whatsapp kal milte hain”, “alarm 6:30”, “timer 10”"
+            android:textSize="13sp" />
+    </LinearLayout>
+</ScrollView>
