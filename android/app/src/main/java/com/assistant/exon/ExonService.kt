@@ -37,6 +37,7 @@ class ExonService : Service() {
     private var wakeLock: PowerManager.WakeLock? = null
     private var lastStart = 0L
     private var backoffMs = 400L
+    private var paused = false
     private var awaitingCommand = false
 
     private lateinit var router: CommandRouter
@@ -54,6 +55,12 @@ class ExonService : Service() {
         wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Exon::listening")
         wakeLock?.setReferenceCounted(false)
         wakeLock?.acquire(60 * 60 * 1000L)   // refreshed on every restart
+
+        val f = android.content.IntentFilter()
+        f.addAction("com.assistant.exon.PAUSE")
+        f.addAction("com.assistant.exon.RESUME")
+        androidx.core.content.ContextCompat.registerReceiver(
+            this, uiReceiver, f, androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED)
 
         createChannel()
         startForeground(NOTIF_ID, notification("Listening for 'Exon'"))
@@ -108,7 +115,23 @@ class ExonService : Service() {
         android.os.Handler(mainLooper).postDelayed({ startListening() }, delayMs)
     }
 
+    private val uiReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: android.content.Context?, intent: android.content.Intent?) {
+            when (intent?.action) {
+                "com.assistant.exon.PAUSE" -> {
+                    paused = true
+                    try { recognizer?.cancel() } catch (e: Exception) {}
+                }
+                "com.assistant.exon.RESUME" -> {
+                    paused = false
+                    startListening()
+                }
+            }
+        }
+    }
+
     private fun startListening() {
+        if (paused) return
         val now = SystemClock.elapsedRealtime()
         if (now - lastStart < 300) return
         lastStart = now
@@ -236,6 +259,7 @@ class ExonService : Service() {
     }
 
     override fun onDestroy() {
+        try { unregisterReceiver(uiReceiver) } catch (e: Exception) {}
         running = false
         try { recognizer?.destroy() } catch (_: Exception) {}
         wakeLock?.let { if (it.isHeld) it.release() }
