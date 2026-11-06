@@ -61,7 +61,9 @@ class ExonService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        getSharedPreferences("exon_prefs", MODE_PRIVATE).edit().putBoolean("always_listen", true).apply()
         startListening()
+        wakeLock?.let { if (!it.isHeld) it.acquire(60 * 60 * 1000L) }
         return START_STICKY
     }
 
@@ -219,6 +221,18 @@ class ExonService : Service() {
     private fun notify(text: String) {
         val nm = getSystemService(NotificationManager::class.java)
         nm.notify(NOTIF_ID, notification(text))
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        // Re-arm after the app is swiped away so 'Exon' keeps working like a system assistant
+        val restart = Intent(applicationContext, ExonService::class.java)
+        restart.setPackage(packageName)
+        val pi = android.app.PendingIntent.getService(
+            this, 1, restart,
+            android.app.PendingIntent.FLAG_ONE_SHOT or android.app.PendingIntent.FLAG_IMMUTABLE)
+        val alarm = getSystemService(ALARM_SERVICE) as android.app.AlarmManager
+        alarm.set(android.app.AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 1500, pi)
+        super.onTaskRemoved(rootIntent)
     }
 
     override fun onDestroy() {
