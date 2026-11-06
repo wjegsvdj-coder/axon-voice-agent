@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -27,6 +28,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var status: TextView
     private lateinit var heard: TextView
     private lateinit var replyView: TextView
+    private lateinit var latencyView: TextView
+    private var t0 = 0L
     private lateinit var input: EditText
 
     private val uiReceiver = object : BroadcastReceiver() {
@@ -47,6 +50,13 @@ class MainActivity : AppCompatActivity() {
         status = findViewById(R.id.status)
         heard = findViewById(R.id.heard)
         replyView = findViewById(R.id.reply)
+        latencyView = findViewById(R.id.latency)
+        findViewById<TextView>(R.id.title).setOnLongClickListener {
+            val adv = findViewById<LinearLayout>(R.id.advanced)
+            adv.visibility = if (adv.visibility == LinearLayout.VISIBLE) LinearLayout.GONE else LinearLayout.VISIBLE
+            Toast.makeText(this, if (adv.visibility == LinearLayout.VISIBLE) "Advanced" else "Hidden", Toast.LENGTH_SHORT).show()
+            true
+        }
         input = findViewById(R.id.input)
 
         findViewById<Button>(R.id.btnMic).setOnClickListener { runCommand(input.text.toString()) }
@@ -111,6 +121,7 @@ class MainActivity : AppCompatActivity() {
     private fun runCommand(text: String) {
         val cmd = text.trim()
         if (cmd.isEmpty()) return
+        t0 = System.currentTimeMillis()
         heard.text = "You: $cmd"
         input.setText("")
 
@@ -141,6 +152,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun say(text: String) {
         replyView.text = text
+        if (t0 > 0L) {
+            val ms = System.currentTimeMillis() - t0
+            val mode = if (ms < 400) "local" else "brain"
+            latencyView.text = "\u23F1 ${ms} ms \u00B7 $mode"
+            t0 = 0L
+        }
         speaker.say(text.take(300))
         refreshStatus()
     }
