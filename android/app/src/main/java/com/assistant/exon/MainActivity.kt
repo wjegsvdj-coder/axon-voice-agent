@@ -69,6 +69,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnWriteSettings).setOnClickListener { askWriteSettings() }
         findViewById<Button>(R.id.btnDnd).setOnClickListener { askDnd() }
         findViewById<Button>(R.id.btnMemory).setOnClickListener { showMemory() }
+        findViewById<Button>(R.id.btnVoice).setOnClickListener { showVoiceDialog() }
         findViewById<Button>(R.id.btnBrain).setOnClickListener { showBrainDialog() }
         findViewById<Button>(R.id.btnRun).setOnClickListener { runCommand(input.text.toString()) }
 
@@ -250,6 +251,34 @@ class MainActivity : AppCompatActivity() {
         val want = "$packageName/${ExonAccessibility::class.java.name}"
         val enabled = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES) ?: return false
         return enabled.split(':').any { it.equals(want, true) }
+    }
+
+    private fun showVoiceDialog() {
+        val voices = speaker.availableVoices()
+        if (voices.isEmpty()) {
+            say("Is phone par koi natural voice nahi mili. Google TTS install karo.")
+            speaker.openTtsSettings()
+            return
+        }
+        val labels = voices.map { v ->
+            val q = when (v.quality) {
+                android.speech.tts.Voice.QUALITY_VERY_HIGH -> "natural"
+                android.speech.tts.Voice.QUALITY_HIGH -> "high"
+                android.speech.tts.Voice.QUALITY_NORMAL -> "normal"
+                else -> "low"
+            }
+            v.locale.toLanguageTag() + "  ·  " + q + (if (v.isNetworkConnectionRequired) "  ·  net" else "")
+        }.toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle("Voice chuno (" + voices.size + ")")
+            .setItems(labels) { _, which ->
+                speaker.setVoice(voices[which].name)
+                speaker.say("Yeh meri nayi awaaz hai. Kaisi lagi?")
+                refreshDiag()
+            }
+            .setPositiveButton("TTS settings") { _, _ -> speaker.openTtsSettings() }
+            .setNegativeButton("Band") { _, _ -> }
+            .show()
     }
 
     private fun showMemory() {
