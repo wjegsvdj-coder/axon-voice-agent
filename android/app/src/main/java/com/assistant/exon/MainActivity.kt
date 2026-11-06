@@ -118,8 +118,8 @@ class MainActivity : AppCompatActivity() {
                 override fun onBufferReceived(b: ByteArray?) {}
                 override fun onEndOfSpeech() { status.text = "samajh raha hoon..." }
                 override fun onError(e: Int) {
-                    status.text = "mic error $e"
-                    if (listening) micBtn.postDelayed({ if (listening) startListening() }, 700)
+                    status.text = "mic: " + errText(e)
+                    if (listening) micBtn.postDelayed({ if (listening) startListening() }, retryDelay(e))
                 }
                 override fun onResults(r: Bundle?) {
                     val said = r?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull().orEmpty()
@@ -132,14 +132,36 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun errText(e: Int): String = when (e) {
+        1, 2 -> "network"
+        3 -> "audio busy (kisi aur app ne mic liya)"
+        5 -> "recognizer client error"
+        6 -> "kuch suna nahi"
+        7 -> "samajh nahi aaya"
+        8 -> "recognizer busy"
+        9 -> "mic permission nahi"
+        11 -> "server se disconnect"
+        12 -> "ye language support nahi"
+        13 -> "kuch suna nahi"
+        else -> "error " + e
+    }
+
+    private fun retryDelay(e: Int): Long = when (e) {
+        8 -> 1400
+        9 -> 6000
+        11, 12 -> 2000
+        98 -> 1500
+        else -> 450
+    }
+
     private fun startListening() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             askPermissions(); say("Pehle microphone ki permission do."); return
         }
         val i = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "hi-IN")
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "hi-IN")
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-IN")
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "en-IN")
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false)
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
         }
@@ -303,7 +325,21 @@ class MainActivity : AppCompatActivity() {
             .setNegativeButton("Cancel", null).show()
     }
 
-    override fun onResume() { super.onResume(); refreshDiag() }
+    private fun signalService(action: String) {
+        val i = Intent(action).setPackage(packageName)
+        if (android.os.Build.VERSION.SDK_INT >= 33) sendBroadcast(i) else sendBroadcast(i)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        signalService("com.assistant.exon.PAUSE")   // one mic owner at a time
+        refreshDiag()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        signalService("com.assistant.exon.RESUME")
+    }
 
     override fun onDestroy() {
         super.onDestroy()
