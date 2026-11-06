@@ -74,3 +74,40 @@ pip install kokoro-onnx soundfile
 - `device timeout` — re-plug, `adb kill-server && adb start-server`.
 - No sound — install `pygame`; the script falls back to `aplay`/`afplay`/`start`.
 - Mic not found — `python -m speech_recognition` lists devices; PyAudio must match Python.
+
+
+---
+
+# Exon Android app (APK)
+
+Download the latest build from Releases:
+`https://github.com/wjegsvdj-coder/axon-voice-agent/releases/latest`
+
+Install, then:
+1. Open Exon -> allow **microphone** and **notifications**.
+2. **Enable accessibility service** (needed for home/back/scroll/screenshot).
+3. **Allow system writes** (screen timeout, brightness).
+4. **Allow DND control** (optional).
+5. Tap **Start always-on listening** — say `Exon` then a command.
+6. One-time PC command for deep settings:
+   `adb shell pm grant com.assistant.exon android.permission.WRITE_SECURE_SETTINGS`
+
+## What runs offline (no API key, no credits)
+- Commands: apps, volume, mute, DND, brightness, flashlight, battery, alarm, timer,
+  call, WhatsApp, YouTube/Google search, home/back/recents, scroll, screenshot,
+  screen timeout, refresh rate, Wi-Fi/Bluetooth panels.
+- **Memory**: say `yaad rakho <fact>` / `bhool jao <fact>` / `kya yaad hai`. Stored locally.
+- **Content pack**: say `script banao <topic>` (also `hooks`, `titles`, `caption`,
+  `shot list`) and get hook lines, titles, a beat-by-beat script skeleton,
+  a scene/shot list and a caption with hashtags.
+
+## Optional brain
+In the app: **Brain settings** -> paste your own endpoint + key. Exon sends
+`{"message": ..., "context": <memory>}` and expects `{"reply": "..."}`.
+Without it, everything above still works; only open-ended conversation needs the brain.
+
+## Notes
+- Continuous listening is battery heavy; Android may throttle background mic use.
+  The service uses a partial wakelock and restarts with backoff on errors.
+- On-device Kokoro TTS is not bundled (model is ~325 MB + native runtime);
+  the app uses the system TTS for instant offline speech. The Python build uses Kokoro.
