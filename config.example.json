@@ -1,0 +1,6 @@
+{
+  "brain": "auto",
+  "voice": "af_heart",
+  "wake_words": ["hey axon", "hi axon", "hello axon", "morning axon", "ok axon", "axon"],
+  "confirm_dangerous": true
+}
