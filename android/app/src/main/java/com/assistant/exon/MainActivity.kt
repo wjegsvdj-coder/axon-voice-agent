@@ -174,7 +174,7 @@ class MainActivity : AppCompatActivity() {
                 return say(if (n > 0) "$n baat bhool gaya." else "Aisa kuch yaad nahi tha.")
             }
             cmd.contains("kya yaad", true) -> {
-                val f = memory.facts().takeLast(5).joinToString("; ") { it.first }
+                val f = memory.facts().takeLast(5).joinToString("; ")
                 return say(if (f.isBlank()) "Abhi kuch yaad nahi hai." else "Mujhe yaad hai: $f")
             }
         }
@@ -233,7 +233,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showMemory() {
         val f = memory.facts()
-        replyView.text = if (f.isEmpty()) "Memory khali hai." else f.joinToString("\n") { "• ${it.first}" }
+        replyView.text = if (f.isEmpty()) "Memory khali hai." else f.joinToString("\n") { "• $it" }
         speaker.say(if (f.isEmpty()) "Memory khali hai." else "Mere paas ${f.size} baatein yaad hain.")
     }
 
