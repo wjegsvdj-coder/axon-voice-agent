@@ -99,6 +99,7 @@
             <Button android:id="@+id/btnAccessibility" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Accessibility settings" />
             <Button android:id="@+id/btnWriteSettings" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Allow system writes" />
             <Button android:id="@+id/btnDnd" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Allow DND control" />
+            <Button android:id="@+id/btnVoice" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Voice / awaaz" />
             <Button android:id="@+id/btnMemory" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Show memory" />
             <Button android:id="@+id/btnBrain" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Brain endpoint (advanced)" />
         </LinearLayout>
