@@ -1,0 +1,7 @@
+kokoro
+soundfile
+numpy
+speechrecognition
+pyaudio
+pygame
+google-genai
